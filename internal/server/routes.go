@@ -22,6 +22,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	{
 		api.GET("/", s.HelloWorldHandler)
 		api.GET("/health", s.healthHandler)
+		api.POST("/accounts", s.CreateAccountHandler)
+		api.POST("/accounts/:id/top-up", s.TopUpHandler)
+		api.POST("/accounts/:id/charge", s.ChargeHandler)
 	}
 
 	return r

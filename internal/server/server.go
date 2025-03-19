@@ -16,8 +16,9 @@ import (
 type Server struct {
 	port int
 
-	db             database.Service
-	accountService services.AccountService
+	db                 database.Service
+	AccountService     services.AccountService
+	TransactionService services.TransactionService
 }
 
 func NewServer() *http.Server {
@@ -25,9 +26,10 @@ func NewServer() *http.Server {
 	db := database.New()
 
 	NewServer := &Server{
-		port:           port,
-		db:             db,
-		accountService: services.NewAccountService(db.GetDB()),
+		port:               port,
+		db:                 db,
+		AccountService:     services.NewAccountService(db.GetDB()),
+		TransactionService: services.NewTransactionService(db.GetDB()),
 	}
 
 	// Declare Server config
