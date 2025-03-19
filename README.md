@@ -18,7 +18,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Schema
 - check [wallet schema](wallet-schema.sql) for the schema
-- you can also dumb [wallet.db](wallet.db) to to any sql client to see the schema
+- you can also dumb [wallet.db](wallet.db) to to any sqlite client to see the schema
 
 ```mermaid
 erDiagram
@@ -52,6 +52,6 @@ erDiagram
         DATETIME deleted_at
     }
 
-    users ||--o{ accounts : "user_id"
-    accounts ||--o{ transactions : "account_id"
+    users ||--o{ accounts : user_id
+    accounts ||--o{ transactions : account_id
 ```
