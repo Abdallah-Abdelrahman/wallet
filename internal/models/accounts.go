@@ -21,5 +21,7 @@ type Account struct {
 // BeforeCreate hook to generate UUID before saving to the database
 func (a *Account) BeforeCreate(tx *gorm.DB) (err error) {
 	a.ID = uuid.New()
+	a.CreatedAt = time.Now()
+	a.UpdatedAt = time.Now()
 	return
 }

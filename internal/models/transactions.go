@@ -32,5 +32,7 @@ type Transaction struct {
 // BeforeCreate generates a new UUID for the ID field.
 func (t *Transaction) BeforeCreate(tx *gorm.DB) error {
 	t.ID = uuid.New()
+	t.CreatedAt = time.Now()
+	t.UpdatedAt = time.Now()
 	return nil
 }

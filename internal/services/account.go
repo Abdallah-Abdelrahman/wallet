@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"time"
 	"wallet/internal/models"
 
@@ -12,8 +13,8 @@ import (
 type AccountService interface {
 	CreateAccountWithUser(email, firstName, lastName string) (*models.Account, error)
 	GetAccountByID(accountID uuid.UUID) (*models.Account, error)
-	TopUp(accountID uuid.UUID, amount float64, ref string) (*models.Transaction, error)
-	Charge(accountID uuid.UUID, amount float64, ref string) (*models.Transaction, error)
+	TopUp(accountID uuid.UUID, amount float64) (*models.Transaction, error)
+	Charge(accountID uuid.UUID, amount float64) (*models.Transaction, error)
 }
 
 type accountService struct {
@@ -26,33 +27,37 @@ func NewAccountService(db *gorm.DB) AccountService {
 
 // CreateAccountWithUser creates a new user and a corresponding account with a 0.00 balance.
 func (s *accountService) CreateAccountWithUser(email, firstName, lastName string) (*models.Account, error) {
+	userService := NewUserService(s.db)
+
+	// Check if user already exists
+	_, user_err := userService.GetUserByEmail(email)
+	if user_err == nil {
+		return nil, errors.New("user already exists")
+	}
+
 	// Start a transaction
 	tx := s.db.Begin()
 
 	// Create the user
-	user := &models.User{
-		ID:        uuid.New(),
+	new_user := &models.User{
 		Email:     email,
 		FirstName: firstName,
 		LastName:  lastName,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
 	}
 
-	if err := tx.Create(&user).Error; err != nil {
+	// Save the new user
+	if err := tx.Create(&new_user).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
 	// Create the account for the user with an initial balance of 0.00
 	account := &models.Account{
-		ID:        uuid.New(),
-		Balance:   0.00,
-		UserID:    user.ID,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Balance: 0.00,
+		UserID:  new_user.ID,
 	}
 
+	// Save the new account
 	if err := tx.Create(&account).Error; err != nil {
 		tx.Rollback()
 		return nil, err
@@ -62,6 +67,10 @@ func (s *accountService) CreateAccountWithUser(email, firstName, lastName string
 	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
+
+	// set the relationship
+	account.User = *new_user
+	account.User.Accounts = append(account.User.Accounts, *account)
 
 	return account, nil
 }
@@ -77,50 +86,70 @@ func (s *accountService) GetAccountByID(accountID uuid.UUID) (*models.Account, e
 }
 
 // TopUp adds funds to an account.
-func (s *accountService) TopUp(accountID uuid.UUID, amount float64, ref string) (*models.Transaction, error) {
+func (s *accountService) TopUp(accountID uuid.UUID, amount float64) (*models.Transaction, error) {
+	if amount <= 0 {
+		return nil, errors.New("amount must be greater than 0")
+	}
+
 	// Retrieve the account
 	account, err := s.GetAccountByID(accountID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Create transaction
+	// Start a transaction
 	tx := s.db.Begin()
+
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
 
-	transaction := &models.Transaction{
-		TransactionType: models.TopUp,
-		Amount:          amount,
-		Ref:             ref,
-		AccountID:       accountID,
-	}
-
 	// Add balance to the account
 	account.Balance += amount
 
-	// Save the transaction and update the account
+	// Retrieve the user associated with the account
+	acc_u, u_err := NewUserService(s.db).GetUserByID(account.UserID)
+
+	if u_err != nil {
+		tx.Rollback()
+		return nil, u_err
+	}
+
+	// Create a new transaction
+	transaction := &models.Transaction{
+		TransactionType: models.TopUp,
+		Amount:          amount,
+		Ref:             fmt.Sprintf("TXN-%s-%d", uuid.New().String(), time.Now().UnixNano()),
+		AccountID:       accountID,
+	}
+
+	// Save the transaction
 	if err := tx.Create(transaction).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
+	// Update the account with the new balance
 	if err := tx.Save(account).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
 	// Commit the transaction
-	tx.Commit()
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+	// set the relationship
+	transaction.Account = *account
+	transaction.Account.User = *acc_u
 
 	return transaction, nil
 }
 
 // Charge deducts funds from an account.
-func (s *accountService) Charge(accountID uuid.UUID, amount float64, ref string) (*models.Transaction, error) {
+func (s *accountService) Charge(accountID uuid.UUID, amount float64) (*models.Transaction, error) {
 	// Retrieve the account
 	account, err := s.GetAccountByID(accountID)
 	if err != nil {
@@ -143,7 +172,7 @@ func (s *accountService) Charge(accountID uuid.UUID, amount float64, ref string)
 	transaction := &models.Transaction{
 		TransactionType: models.Charge,
 		Amount:          amount,
-		Ref:             ref,
+		Ref:             fmt.Sprintf("TXN-%s-%d", uuid.New().String(), time.Now().UnixNano()),
 		AccountID:       accountID,
 	}
 
@@ -164,5 +193,16 @@ func (s *accountService) Charge(accountID uuid.UUID, amount float64, ref string)
 	// Commit the transaction
 	tx.Commit()
 
+	// Retrieve the user associated with the account
+	acc_u, u_err := NewUserService(s.db).GetUserByID(account.UserID)
+
+	if u_err != nil {
+		tx.Rollback()
+		return nil, u_err
+	}
+
+	// set the relationship
+	transaction.Account = *account
+	transaction.Account.User = *acc_u
 	return transaction, nil
 }

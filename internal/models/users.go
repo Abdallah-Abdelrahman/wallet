@@ -22,5 +22,7 @@ type User struct {
 // BeforeCreate generates a new UUID for the ID field.
 func (u *User) BeforeCreate(tx *gorm.DB) error {
 	u.ID = uuid.New()
+	u.CreatedAt = time.Now()
+	u.UpdatedAt = time.Now()
 	return nil
 }

@@ -28,7 +28,7 @@ func (s *Server) CreateAccountHandler(c *gin.Context) {
 	// Create the user and account with 0 balance
 	account, err := s.AccountService.CreateAccountWithUser(request.Email, request.FirstName, request.LastName)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create account"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -44,7 +44,6 @@ func (s *Server) TopUpHandler(c *gin.Context) {
 
 	var request struct {
 		Amount float64 `json:"amount" binding:"required,gt=0"` // Ensure the amount is greater than 0
-		Ref    string  `json:"ref" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -53,9 +52,9 @@ func (s *Server) TopUpHandler(c *gin.Context) {
 	}
 
 	// Call the account service to top up the account
-	transaction, err := s.AccountService.TopUp(accountID, request.Amount, request.Ref)
+	transaction, err := s.AccountService.TopUp(accountID, request.Amount)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to top up account"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -70,8 +69,7 @@ func (s *Server) ChargeHandler(c *gin.Context) {
 	}
 
 	var request struct {
-		Amount float64 `json:"amount" binding:"required,gt=0"` // Ensure the amount is greater than 0
-		Ref    string  `json:"ref" binding:"required"`
+		Amount float64 `json:"amount" binding:"required,gt=0"`
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -80,9 +78,9 @@ func (s *Server) ChargeHandler(c *gin.Context) {
 	}
 
 	// Call the account service to charge the account
-	transaction, err := s.AccountService.Charge(accountID, request.Amount, request.Ref)
+	transaction, err := s.AccountService.Charge(accountID, request.Amount)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to charge account"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
