@@ -54,7 +54,7 @@ func (s *accountService) CreateAccountWithUser(email, firstName, lastName string
 
 	// Create the account for the user with an initial balance of 0.00
 	account := &models.Account{
-		Balance: math.Round(0*100) / 100,
+		Balance: 0.00,
 		UserID:  new_user.ID,
 	}
 
