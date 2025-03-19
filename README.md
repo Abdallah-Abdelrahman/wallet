@@ -1,39 +1,57 @@
-# Project wallet
+# wallet
 
-One Paragraph of project description goes here
+A simple wallet application that allows you to deposit, withdraw, and check your balance.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-## MakeFile
+## Prerequisites
 
-Run build make command with tests
-```bash
-make all
-```
+- install [go](https://go.dev/doc/install)
 
-Build the application
-```bash
-make build
-```
+## Installing
+- clone the repository
+- run `make run` to start the application
+- run `make watch` to start the application with live reload
+- run `make clean` to clean up the binary from the last build
 
-Run the application
-```bash
-make run
-```
+## Schema
+- check [wallet schema](wallet-schema.sql) for the schema
+- you can also dumb [wallet.db](wallet.db) to to any sql client to see the schema
 
-Live reload the application:
-```bash
-make watch
-```
+```mermaid
+erDiagram
+    users {
+        TEXT id PK
+        TEXT email UK
+        TEXT first_name
+        TEXT last_name
+        DATETIME created_at
+        DATETIME updated_at
+        DATETIME deleted_at
+    }
 
-Run the test suite:
-```bash
-make test
-```
+    accounts {
+        TEXT id PK
+        DECIMAL(10,2) balance
+        TEXT user_id FK
+        DATETIME created_at
+        DATETIME updated_at
+        DATETIME deleted_at
+    }
 
-Clean up binary from the last build:
-```bash
-make clean
+    transactions {
+        TEXT id PK
+        VARCHAR(10) transaction_type
+        DECIMAL(10,2) amount
+        TEXT ref UK
+        TEXT account_id FK
+        DATETIME created_at
+        DATETIME updated_at
+        DATETIME deleted_at
+    }
+
+    users ||--o{ accounts : "user_id"
+    accounts ||--o{ transactions : "account_id"
 ```

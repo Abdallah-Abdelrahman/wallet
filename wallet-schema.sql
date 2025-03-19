@@ -1,0 +1,6 @@
+CREATE TABLE `users` (`id` TEXT,`email` text NOT NULL,`first_name` text NOT NULL,`last_name` text NOT NULL,`created_at` datetime,`updated_at` datetime,`deleted_at` datetime,PRIMARY KEY (`id`),CONSTRAINT `uni_users_email` UNIQUE (`email`));
+CREATE INDEX `idx_users_deleted_at` ON `users`(`deleted_at`);
+CREATE TABLE IF NOT EXISTS "accounts"  (`id` TEXT,`balance` decimal(10,2) NOT NULL DEFAULT 0,`user_id` TEXT NOT NULL,`created_at` datetime,`updated_at` datetime,`deleted_at` datetime,PRIMARY KEY (`id`),CONSTRAINT `fk_users_accounts` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`));
+CREATE INDEX `idx_accounts_deleted_at` ON `accounts`(`deleted_at`);
+CREATE TABLE IF NOT EXISTS "transactions"  (`id` TEXT,`transaction_type` varchar(10) NOT NULL,`amount` decimal(10,2) NOT NULL,`ref` text NOT NULL,`account_id` TEXT NOT NULL,`created_at` datetime,`updated_at` datetime,`deleted_at` datetime,PRIMARY KEY (`id`),CONSTRAINT `fk_transactions_account` FOREIGN KEY (`account_id`) REFERENCES `accounts`(`id`),CONSTRAINT `uni_transactions_ref` UNIQUE (`ref`),CONSTRAINT `chk_transactions_transaction_type` CHECK (transaction_type IN ('top-up', 'charge')));
+CREATE INDEX `idx_transactions_deleted_at` ON `transactions`(`deleted_at`);
