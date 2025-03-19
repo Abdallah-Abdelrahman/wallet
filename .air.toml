@@ -1,0 +1,35 @@
+[build]
+# build the application
+cmd = "go build -o ./bin/wallet ./cmd/api/main.go"
+
+# Path to the built binary
+bin = "./bin/wallet"
+
+# Files to watch for changes
+include_ext = ["go"]
+
+# Directories to exclude from watching
+exclude_dir = ["bin", "tmp", "docker"]
+
+# Files to exclude from watching
+exclude_file = []
+
+# Directories to include in watching
+include_dir = []
+
+# Log file for build errors
+log = "build-errors.log"
+
+[log]
+# Disable timestamps in logs
+time = false
+
+[color]
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"
+
+[misc]
+# Clean up temporary files on exit
+clean_on_exit = true
