@@ -1,30 +1,32 @@
 # Simple Makefile for wallet API
+RED := \e[31m
+GREEN := \e[32m
+CYAN := \033[36m
+BOLD := \e[1m
+RESET := \033[0m
 
-# Build the application
-all: build test
-
-build:
+build: ## Build the application
 	@echo "Building..."
 	
 	
-	@go build -o main cmd/main.go
+	@CGO_ENABLED=0 go build -o bin/wallet -ldflags "-s -w" cmd/main.go
 
-# Run the application
-run:
+
+run: ## Run the application
 	@go run cmd/main.go
 
-# Test the application
-test:
+
+test: ## Test the application
 	@echo "Testing..."
 	@go test ./... -v
 
-# Clean the binary
-clean:
+
+clean: ## Clean the binary
 	@echo "Cleaning..."
 	@rm -f main
 
-# Live Reload
-watch:
+
+watch: ## Live Reload
 	@if command -v air > /dev/null; then \
             air; \
             echo "Watching...";\
@@ -45,4 +47,8 @@ generate-docs: ## Generate API documentation using swag
 	@swag init --dir ./cmd/,./internal/server --output ./docs
 	@echo "Documentation generated successfully"
 
+help: ## Show this help message
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-20s$(RESET) %s\n", $$1, $$2}'
+
+.DEFAULT_GOAL:= help
 .PHONY: all build run test clean watch
