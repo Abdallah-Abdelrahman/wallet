@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"math"
 	"time"
 	"wallet/internal/models"
 
@@ -53,7 +54,7 @@ func (s *accountService) CreateAccountWithUser(email, firstName, lastName string
 
 	// Create the account for the user with an initial balance of 0.00
 	account := &models.Account{
-		Balance: 0.00,
+		Balance: math.Round(0*100) / 100,
 		UserID:  new_user.ID,
 	}
 
@@ -108,7 +109,7 @@ func (s *accountService) TopUp(accountID uuid.UUID, amount float64) (*models.Tra
 
 	// Add balance to the account
 	account.Balance += amount
-
+	account.Balance = math.Round(account.Balance*100) / 100
 	// Retrieve the user associated with the account
 	acc_u, u_err := NewUserService(s.db).GetUserByID(account.UserID)
 
@@ -117,11 +118,21 @@ func (s *accountService) TopUp(accountID uuid.UUID, amount float64) (*models.Tra
 		return nil, u_err
 	}
 
+	var existingTransaction models.Transaction
+
+	// Generate a unique Ref for each transaction
+	ref := fmt.Sprintf("TXN-%s-%d", uuid.New().String(), time.Now().UnixNano())
+
+	// Check if a transaction with the same Ref already exists
+	if err := s.db.Where("ref = ?", ref).First(&existingTransaction).Error; err == nil {
+		return nil, errors.New("duplicate transaction detected")
+	}
+
 	// Create a new transaction
 	transaction := &models.Transaction{
 		TransactionType: models.TopUp,
-		Amount:          amount,
-		Ref:             fmt.Sprintf("TXN-%s-%d", uuid.New().String(), time.Now().UnixNano()),
+		Amount:          math.Round(amount*100) / 100,
+		Ref:             ref,
 		AccountID:       accountID,
 	}
 
@@ -169,15 +180,26 @@ func (s *accountService) Charge(accountID uuid.UUID, amount float64) (*models.Tr
 		}
 	}()
 
+	var existingTransaction models.Transaction
+
+	// Generate a unique Ref for each transaction
+	ref := fmt.Sprintf("TXN-%s-%d", uuid.New().String(), time.Now().UnixNano())
+
+	// Check if a transaction with the same Ref already exists
+	if err := s.db.Where("ref = ?", ref).First(&existingTransaction).Error; err == nil {
+		return nil, errors.New("duplicate transaction detected")
+	}
+
 	transaction := &models.Transaction{
 		TransactionType: models.Charge,
-		Amount:          amount,
-		Ref:             fmt.Sprintf("TXN-%s-%d", uuid.New().String(), time.Now().UnixNano()),
+		Amount:          math.Round(amount*100) / 100,
+		Ref:             ref,
 		AccountID:       accountID,
 	}
 
 	// Deduct balance from the account
 	account.Balance -= amount
+	account.Balance = math.Round(account.Balance*100) / 100
 
 	// Save the transaction and update the account
 	if err := tx.Create(transaction).Error; err != nil {

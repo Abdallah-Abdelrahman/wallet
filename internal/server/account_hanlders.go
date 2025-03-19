@@ -43,7 +43,7 @@ func (s *Server) TopUpHandler(c *gin.Context) {
 	}
 
 	var request struct {
-		Amount float64 `json:"amount" binding:"required,gt=0"` // Ensure the amount is greater than 0
+		Amount float64 `json:"amount" binding:"required,gt=0"`
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
