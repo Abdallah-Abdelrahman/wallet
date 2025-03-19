@@ -1,0 +1,185 @@
+basePath: /api/v1
+definitions:
+  dto.AccountBadRequestResponse:
+    properties:
+      error:
+        default: Invalid request
+        type: string
+    type: object
+  dto.ChargeRequest:
+    properties:
+      amount:
+        type: number
+    required:
+    - amount
+    type: object
+  dto.ChargeResponse:
+    properties:
+      account_id:
+        type: string
+      amount:
+        type: number
+      new_balance:
+        type: number
+      transaction_id:
+        type: string
+    type: object
+  dto.CreateAccountRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    type: object
+  dto.CreateAccountResponse:
+    properties:
+      balance:
+        type: number
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+    type: object
+  dto.TopUpRequest:
+    properties:
+      amount:
+        type: number
+    required:
+    - amount
+    type: object
+  dto.TopUpResponse:
+    properties:
+      account_id:
+        type: string
+      amount:
+        type: number
+      new_balance:
+        type: number
+      transaction_id:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a simple wallet service.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Wallet API Documentation
+  version: "1.0"
+paths:
+  /accounts:
+    post:
+      consumes:
+      - application/json
+      description: Create a new account with the given user details
+      parameters:
+      - description: Account details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Account created successfully
+          schema:
+            $ref: '#/definitions/dto.CreateAccountResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.AccountBadRequestResponse'
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create a new account
+      tags:
+      - accounts
+  /accounts/{id}/charge:
+    post:
+      consumes:
+      - application/json
+      description: Charge an account with the given amount
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Charge details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChargeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Charge successful
+          schema:
+            $ref: '#/definitions/dto.ChargeResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.AccountBadRequestResponse'
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Charge an account
+      tags:
+      - accounts
+  /accounts/{id}/top-up:
+    post:
+      consumes:
+      - application/json
+      description: Top up an account with the given amount
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Top up details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TopUpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Top up successful
+          schema:
+            $ref: '#/definitions/dto.TopUpResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.AccountBadRequestResponse'
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Top up an account
+      tags:
+      - accounts
+swagger: "2.0"

@@ -40,4 +40,9 @@ watch:
             fi; \
         fi
 
+generate-docs: ## Generate API documentation using swag
+	@rm -rf docs/swagger/*
+	@swag init --dir ./cmd/,./internal/server --output ./docs
+	@echo "Documentation generated successfully"
+
 .PHONY: all build run test clean watch
