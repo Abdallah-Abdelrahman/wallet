@@ -34,7 +34,7 @@ erDiagram
 
     accounts {
         TEXT id PK
-        DECIMAL(10,2) balance
+        DECIMAL balance
         TEXT user_id FK
         DATETIME created_at
         DATETIME updated_at
@@ -43,8 +43,8 @@ erDiagram
 
     transactions {
         TEXT id PK
-        VARCHAR(10) transaction_type
-        DECIMAL(10,2) amount
+        VARCHAR transaction_type
+        DECIMAL amount
         TEXT ref UK
         TEXT account_id FK
         DATETIME created_at
