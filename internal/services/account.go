@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"time"
 	"wallet/internal/models"
 
 	"github.com/google/uuid"
@@ -9,7 +10,7 @@ import (
 )
 
 type AccountService interface {
-	CreateAccount(userID uuid.UUID) (*models.Account, error)
+	CreateAccountWithUser(email, firstName, lastName string) (*models.Account, error)
 	GetAccountByID(accountID uuid.UUID) (*models.Account, error)
 	TopUp(accountID uuid.UUID, amount float64, ref string) (*models.Transaction, error)
 	Charge(accountID uuid.UUID, amount float64, ref string) (*models.Transaction, error)
@@ -23,15 +24,45 @@ func NewAccountService(db *gorm.DB) AccountService {
 	return &accountService{db: db}
 }
 
-func (s *accountService) CreateAccount(userID uuid.UUID) (*models.Account, error) {
-	account := &models.Account{
-		UserID:  userID,
-		Balance: 0.00,
+// CreateAccountWithUser creates a new user and a corresponding account with a 0.00 balance.
+func (s *accountService) CreateAccountWithUser(email, firstName, lastName string) (*models.Account, error) {
+	// Start a transaction
+	tx := s.db.Begin()
+
+	// Create the user
+	user := &models.User{
+		ID:        uuid.New(),
+		Email:     email,
+		FirstName: firstName,
+		LastName:  lastName,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
-	err := s.db.Create(account).Error
-	if err != nil {
+
+	if err := tx.Create(&user).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
+
+	// Create the account for the user with an initial balance of 0.00
+	account := &models.Account{
+		ID:        uuid.New(),
+		Balance:   0.00,
+		UserID:    user.ID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	if err := tx.Create(&account).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
 	return account, nil
 }
 
