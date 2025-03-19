@@ -18,7 +18,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Documentation
 
-After running the application, you can access the documentation at [docs](http://localhost:8080/swagger/index.html)
+After running the application, you can access the documentation at `http://localhost:8080/swagger/index.html`
 
 ## Schema
 - check [wallet schema](wallet-schema.sql) for the schema
