@@ -1,6 +1,6 @@
 [build]
 # build the application
-cmd = "go build -o ./bin/wallet ./cmd/api/main.go"
+cmd = "go build -o ./bin/wallet ./cmd/main.go"
 
 # Path to the built binary
 bin = "./bin/wallet"

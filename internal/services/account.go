@@ -66,6 +66,7 @@ func (s *accountService) CreateAccountWithUser(email, firstName, lastName string
 	return account, nil
 }
 
+// GetAccountByID retrieves an account by its ID.
 func (s *accountService) GetAccountByID(accountID uuid.UUID) (*models.Account, error) {
 	var account models.Account
 	err := s.db.First(&account, "id = ?", accountID).Error
@@ -75,6 +76,7 @@ func (s *accountService) GetAccountByID(accountID uuid.UUID) (*models.Account, e
 	return &account, nil
 }
 
+// TopUp adds funds to an account.
 func (s *accountService) TopUp(accountID uuid.UUID, amount float64, ref string) (*models.Transaction, error) {
 	// Retrieve the account
 	account, err := s.GetAccountByID(accountID)
@@ -117,6 +119,7 @@ func (s *accountService) TopUp(accountID uuid.UUID, amount float64, ref string) 
 	return transaction, nil
 }
 
+// Charge deducts funds from an account.
 func (s *accountService) Charge(accountID uuid.UUID, amount float64, ref string) (*models.Transaction, error) {
 	// Retrieve the account
 	account, err := s.GetAccountByID(accountID)
