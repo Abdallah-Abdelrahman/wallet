@@ -23,6 +23,9 @@ type Service interface {
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close() error
+
+	// getDB returns the Gorm database instance.
+	GetDB() *gorm.DB
 }
 
 type service struct {
@@ -120,4 +123,9 @@ func (s *service) Health() map[string]string {
 func (s *service) Close() error {
 	log.Printf("Disconnected from database: %s", dburl)
 	return s.Close()
+}
+
+// getDB returns the Gorm database instance.
+func (s *service) GetDB() *gorm.DB {
+	return s.db
 }

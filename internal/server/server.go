@@ -10,20 +10,24 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"wallet/internal/database"
+	"wallet/internal/services"
 )
 
 type Server struct {
 	port int
 
-	db database.Service
+	db             database.Service
+	accountService services.AccountService
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	NewServer := &Server{
-		port: port,
+	db := database.New()
 
-		db: database.New(),
+	NewServer := &Server{
+		port:           port,
+		db:             db,
+		accountService: services.NewAccountService(db.GetDB()),
 	}
 
 	// Declare Server config

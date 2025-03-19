@@ -21,7 +21,7 @@ type Transaction struct {
 	ID              uuid.UUID       `gorm:"type:TEXT;primaryKey"`
 	TransactionType TransactionType `gorm:"type:varchar(10);not null;check:transaction_type IN ('top-up', 'charge')"`
 	Amount          float64         `gorm:"type:decimal(10,2);not null"`
-	Ref             string          `gorm:"not null"`
+	Ref             string          `gorm:"not null;unique"`
 	AccountID       uuid.UUID       `gorm:"type:uuid;not null"`
 	Account         Account         `gorm:"foreignKey:AccountID"`
 	CreatedAt       time.Time
