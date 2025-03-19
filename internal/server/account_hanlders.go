@@ -36,6 +36,12 @@ func (s *Server) CreateAccountHandler(c *gin.Context) {
 
 	// Create the user and account with 0 balance
 	account, err := s.AccountService.CreateAccountWithUser(request.Email, request.FirstName, request.LastName)
+
+	if err != nil && err.Error() == "user already exists" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user already exists"})
+		return
+	}
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

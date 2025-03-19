@@ -71,7 +71,6 @@ func (s *accountService) CreateAccountWithUser(email, firstName, lastName string
 
 	// set the relationship
 	account.User = *new_user
-	account.User.Accounts = append(account.User.Accounts, *account)
 
 	return account, nil
 }
