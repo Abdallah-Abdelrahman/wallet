@@ -20,6 +20,9 @@ These instructions will get you a copy of the project up and running on your loc
 
 After running the application, you can access the documentation at `http://localhost:8080/swagger/index.html`
 
+## 🚀️ Deployment Bonus:
+- The application is hosted on my server 👉️ [here](http://198.199.64.195:8082/swagger/index.html)
+
 ## Schema
 - check [wallet schema](wallet-schema.sql) for the schema
 - you can also dumb [wallet.db](wallet.db) to to any sqlite client to see the schema
