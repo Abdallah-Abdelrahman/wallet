@@ -9,7 +9,7 @@ build: ## Build the application
 	@echo "Building..."
 	
 	
-	@CGO_ENABLED=0 go build -o bin/wallet -ldflags "-s -w" cmd/main.go
+	@go build -o bin/wallet -ldflags "-s -w" cmd/main.go
 
 
 run: ## Run the application
