@@ -290,7 +290,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "Wallet API Documentation",
 	Description:      "This is a simple wallet service.",
 	InfoInstanceName: "swagger",

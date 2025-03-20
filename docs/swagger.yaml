@@ -182,4 +182,7 @@ paths:
       summary: Top up an account
       tags:
       - accounts
+schemes:
+- http
+- https
 swagger: "2.0"

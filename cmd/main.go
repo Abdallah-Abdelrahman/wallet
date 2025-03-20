@@ -49,6 +49,7 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 // @host      localhost:8080
 // @BasePath  /api/v1
 
+// @schemes http https
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
