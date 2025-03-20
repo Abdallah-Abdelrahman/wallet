@@ -118,6 +118,10 @@ func (s *Server) ChargeHandler(c *gin.Context) {
 
 	// Call the account service to charge the account
 	transaction, err := s.AccountService.Charge(accountID, request.Amount)
+	if err != nil && err.Error() == "insufficient balance" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
